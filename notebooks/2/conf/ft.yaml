@@ -1,0 +1,21 @@
+data_args:
+  num_labels: 6
+  
+model_args:
+  pretrained_model_name_or_path: "distilbert-base-uncased"
+  
+training_args:
+  output_dir: # interpolation
+  num_train_epochs: 3
+  per_device_train_batch_size: 64
+  per_device_eval_batch_size: 64
+  learning_rate: 2e-5
+  weight_decay: 0.01
+  evaluation_strategy: epoch
+  disable_tqdm: False
+  logging_steps: # interpolation
+  push_to_hub: False
+  save_strategy: epoch
+  load_beest_model_at_end: True
+  log_level: "error"
+  
