@@ -23,4 +23,14 @@ training:
   save_strategy: epoch
   load_best_model_at_end: True
   log_level: "error"
-  
+  report_to:
+      - wandb
+
+env:
+  wandb: 
+  # https://huggingface.co/docs/transformers/main_classes/callback#transformers.integrations.WandbCallback.setup 
+    WANDB_PROJECT: lama-test # wandb project 이름.
+    WANDB_LOG_MODEL: False
+    WANDB_WATCH: False
+    WANDB_DISABLED: False
+    
