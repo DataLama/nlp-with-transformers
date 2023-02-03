@@ -10,18 +10,6 @@ from torch.utils.data.dataloader import _InfiniteConstantSampler
 from transformers import PreTrainedTokenizerBase
 
 
-class IterableDataLoader(DataLoader):
-    """Class to properly wrap the `datasets.IterableDataset` class.
-    Unfortunately this class does not inherit from the `torch.data.IterableDataset` class, so has to be handled
-    specially.
-    """
-
-    def __init__(self, *args, **kwargs):
-        kwargs["sampler"] = _InfiniteConstantSampler()
-        super().__init__(*args, **kwargs)
-        self._dataset_kind = _DatasetKind.Iterable
-
-
 class TransformerDataModule(pl.LightningDataModule):
     """Base ``LightningDataModule`` for HuggingFace Datasets. Provides helper functions and boilerplate logic to
     load/process datasets.
@@ -59,8 +47,6 @@ class TransformerDataModule(pl.LightningDataModule):
     ) -> None:
         super().__init__()
         self.tokenizer = tokenizer
-        self.batch_size = batch_size
-        self.num_workers = num_workers
         self.dataset_name = dataset_name
         self.dataset_config_name = dataset_config_name
         self.revision = revision
@@ -166,45 +152,3 @@ class TransformerDataModule(pl.LightningDataModule):
 
     def load_state_dict(self, state_dict: Dict[str, Any]) -> None:
         self.tokenizer = state_dict["tokenizer"]
-
-    def train_dataloader(self) -> DataLoader:
-        cls = DataLoader if not self.streaming else IterableDataLoader
-        return cls(
-            self.ds["train"],
-            batch_size=self.batch_size,
-            num_workers=self.num_workers,
-            collate_fn=self.collate_fn,
-        )
-
-    def val_dataloader(self) -> DataLoader:
-        cls = DataLoader if not self.streaming else IterableDataLoader
-        return cls(
-            self.ds["validation"],
-            batch_size=self.batch_size,
-            num_workers=self.num_workers,
-            collate_fn=self.collate_fn,
-        )
-
-    def test_dataloader(self) -> Optional[DataLoader]:
-        if "test" in self.ds:
-            cls = DataLoader if not self.streaming else IterableDataLoader
-            return cls(
-                self.ds["test"],
-                batch_size=self.batch_size,
-                num_workers=self.num_workers,
-                collate_fn=self.collate_fn,
-            )
-
-    def predict_dataloader(self) -> Optional[DataLoader]:
-        if "predict" in self.ds:
-            cls = DataLoader if not self.streaming else IterableDataLoader
-            return cls(
-                self.ds["predict"],
-                batch_size=self.batch_size,
-                num_workers=self.num_workers,
-                collate_fn=self.collate_fn,
-            )
-
-    @property
-    def collate_fn(self) -> Optional[Callable]:
-        return None

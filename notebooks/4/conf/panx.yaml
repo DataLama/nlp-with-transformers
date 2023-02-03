@@ -1,24 +1,28 @@
 data:
-  dataset_name: emotion # path in load_dataset
-  padding: True
+  dataset_name: xtreme # path in load_dataset
+  dataset_config_name: 
+  train_val_split: 0.05 # ratio of validation
+  padding: False
   truncation: True
   max_length: # max_seq_len
+  return_length: True
   preprocessing_num_workers: 1
   
 model:
-  pretrained_model_name_or_path: "distilbert-base-uncased"
+  pretrained_model_name_or_path: "klue/bert-base"
   
 training:
   output_dir: # interpolation
-  dataloader_num_workers: 0
+  dataloader_num_workers: 4
   num_train_epochs: 3
   per_device_train_batch_size: 64
   per_device_eval_batch_size: 64
+  group_by_length: True # bucketing
   learning_rate: 2e-5
   weight_decay: 0.01
   evaluation_strategy: epoch
   disable_tqdm: False
-  logging_steps: # interpolation
+  logging_steps: # interpolation  
   push_to_hub: False
   save_strategy: epoch
   load_best_model_at_end: True
